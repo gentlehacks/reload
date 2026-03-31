@@ -91,6 +91,7 @@ export default function Scan() {
           raw: ocr.text,
         },
       });
+      setTorchEnabled(false)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Something went wrong.";
       Alert.alert("Scan failed", msg);
