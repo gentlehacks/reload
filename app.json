@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "zexload",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "icon": "./assets/images/icon.png",
       "supportsTablet": true
@@ -47,7 +46,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "675d8e4c-ce8f-49b9-86af-3226f8635a9d"
+        "projectId": "0ed15cf9-2864-4e3e-83e3-c16af76d661b"
       }
     }
   }
