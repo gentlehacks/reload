@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert, ScrollView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import * as Linking from "expo-linking";
+import * as IntentLauncher from "expo-intent-launcher";
 
 import { formatPin } from "../lib/pin";
 import { getNetworkById } from "../lib/networks";
@@ -14,6 +15,63 @@ import { colors } from "../utils/colors";
 function buildUssd(prefix: string, pinDigits: string) {
   const pin = (pinDigits ?? "").replace(/\D+/g, "");
   return `${prefix}${pin}#`;
+}
+
+async function openUSSD(ussdCode: string): Promise<boolean> {
+  const telUrl = `tel:${encodeURIComponent(ussdCode)}`;
+  // #region agent log
+  fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+    body: JSON.stringify({
+      sessionId: "b71f3c",
+      hypothesisId: "H2",
+      location: "result.tsx:openUSSD",
+      message: "openUSSD entry",
+      data: { platform: Platform.OS, telLen: telUrl.length },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+  if (Platform.OS === "android") {
+    try {
+      await IntentLauncher.startActivityAsync("android.intent.action.DIAL", {
+        data: telUrl,
+      });
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H4",
+          location: "result.tsx:openUSSD",
+          message: "IntentLauncher DIAL ok",
+          data: {},
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      return true;
+    } catch {
+      try {
+        const can = await Linking.canOpenURL(telUrl);
+        if (!can) return false;
+        await Linking.openURL(telUrl);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  }
+  try {
+    const can = await Linking.canOpenURL(telUrl);
+    if (!can) return false;
+    await Linking.openURL(telUrl);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default function Result() {
@@ -28,9 +86,27 @@ export default function Result() {
   async function copy() {
     const digits = pinDigits.replace(/\D+/g, "");
     if (!digits) return;
-    await Clipboard.setStringAsync(digits);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
+    try {
+      await Clipboard.setStringAsync(digits);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch (e: unknown) {
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H2",
+          location: "result.tsx:copy",
+          message: "Clipboard failed",
+          data: { err: e instanceof Error ? e.message : String(e) },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      Alert.alert("Copy failed", "Could not copy to the clipboard. Try again.");
+    }
   }
 
   async function load() {
@@ -41,13 +117,28 @@ export default function Result() {
     const digits = pinDigits.replace(/\D+/g, "");
     if (!digits) return;
 
-    const telUrl = `tel:${encodeURIComponent(ussd)}`;
-    const can = await Linking.canOpenURL(telUrl);
-    if (!can) {
-      Alert.alert("Cannot dial", "Your device can’t dial USSD from this app. You can copy the PIN instead.");
-      return;
+    try {
+      const ok = await openUSSD(ussd);
+      if (!ok) {
+        Alert.alert("Cannot open dialer", "Please copy the PIN and enter your load code manually.");
+      }
+    } catch (e: unknown) {
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H2",
+          location: "result.tsx:load",
+          message: "load unexpected throw",
+          data: { err: e instanceof Error ? e.message : String(e) },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      Alert.alert("Cannot open dialer", "Please copy the PIN and enter your load code manually.");
     }
-    await Linking.openURL(telUrl);
   }
 
   return (
@@ -78,7 +169,7 @@ export default function Result() {
                   { backgroundColor: network?.accent ?? "rgba(15,23,42,0.25)" },
                 ]}
               >
-                <Text style={{color: 'white', fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>{network?.shortName.toUpperCase()}</Text>
+                <Text style={{color: 'white', fontSize: 14, fontWeight: 'bold', textAlign: 'center'}}>{(network?.shortName ?? "").toUpperCase()}</Text>
               </View>
               <Text style={styles.netName}>{network?.name ?? "Network"}</Text>
             </View>

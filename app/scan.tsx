@@ -44,6 +44,20 @@ export default function Scan() {
       return;
     }
     try {
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H1",
+          location: "scan.tsx:captureAndRead",
+          message: "capture start",
+          data: { networkId: network.id },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       setBusy(true);
       setHint("Capturing…");
 
@@ -91,9 +105,37 @@ export default function Scan() {
           raw: ocr.text,
         },
       });
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H1",
+          location: "scan.tsx:captureAndRead",
+          message: "navigate result ok",
+          data: { pinLen: (parsed.pinCandidate ?? "").length },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       setTorchEnabled(false)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Something went wrong.";
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H1",
+          location: "scan.tsx:captureAndRead",
+          message: "capture error",
+          data: { msg },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       Alert.alert("Scan failed", msg);
       setHint("Try again.");
     } finally {

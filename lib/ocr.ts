@@ -38,6 +38,20 @@ export async function recognizeTextFromImageUri(uri: string): Promise<OcrResult>
 
   const result = await ocrModule.recognizeText(uri);
   const text = typeof result?.text === "string" ? result.text : String(result ?? "");
+  // #region agent log
+  fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+    body: JSON.stringify({
+      sessionId: "b71f3c",
+      hypothesisId: "H1",
+      location: "ocr.ts:recognizeTextFromImageUri",
+      message: "ocr done",
+      data: { textLen: text.length },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
   return { text };
 }
 

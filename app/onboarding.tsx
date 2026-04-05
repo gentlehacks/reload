@@ -58,8 +58,26 @@ export default function Onboarding() {
   const isLast = index === slides.length - 1;
 
   async function finish() {
-    await setHasSeenOnboarding();
-    router.replace("/network");
+    try {
+      await setHasSeenOnboarding();
+      router.replace("/network");
+    } catch (e: unknown) {
+      // #region agent log
+      fetch("http://127.0.0.1:7379/ingest/f5079690-0574-49ac-a670-49bd5e2524d3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "b71f3c" },
+        body: JSON.stringify({
+          sessionId: "b71f3c",
+          hypothesisId: "H3",
+          location: "onboarding.tsx:finish",
+          message: "finish error",
+          data: { err: e instanceof Error ? e.message : String(e) },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      router.replace("/network");
+    }
   }
 
   function next() {
