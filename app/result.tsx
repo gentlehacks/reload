@@ -16,6 +16,7 @@ function buildUssd(prefix: string, pinDigits: string) {
   const pin = (pinDigits ?? "").replace(/\D+/g, "");
   return `${prefix}${pin}#`;
 }
+//dmefnj ieom0ouslks po;m mrk efvktgfv  m mgr tlk ,l blfn m mm
 
 async function openUSSD(ussdCode: string): Promise<boolean> {
   const telUrl = `tel:${encodeURIComponent(ussdCode)}`;

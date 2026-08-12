@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ZexLoad",
-    "slug": "zexload",
+    "name": "reLoad",
+    "slug": "reload",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "zexload",
+    "scheme": "reload",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/images/icon.png",
@@ -18,7 +18,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.zexload.app"
+      "package": "com.reload.app"
     },
     "web": {
       "output": "static",
