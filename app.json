@@ -18,7 +18,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.reload.app"
+      "package": "com.reload.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -55,7 +59,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "0ed15cf9-2864-4e3e-83e3-c16af76d661b"
+        "projectId": "705027a5-b627-4212-bd07-72fd928f800a"
       }
     }
   }
