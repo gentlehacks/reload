@@ -1,19 +1,20 @@
-import React, { useMemo, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Dimensions,
-  Pressable,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StatusBar,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import React, { useMemo, useRef, useState } from "react";
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { setHasSeenOnboarding } from "../lib/onboardingStorage";
 import { colors } from "../utils/colors";
@@ -74,7 +75,7 @@ export default function Onboarding() {
           data: { err: e instanceof Error ? e.message : String(e) },
           timestamp: Date.now(),
         }),
-      }).catch(() => {});
+      }).catch(() => { });
       // #endregion
       router.replace("/network");
     }
@@ -98,7 +99,14 @@ export default function Onboarding() {
       <LinearGradient colors={colors.gradientHero} style={StyleSheet.absoluteFill} />
 
       <View style={styles.header}>
-        <Text style={styles.brand}>ZexLoad</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={require("../assets/icon.png")}
+            style={{ width: 24, height: 24, marginRight: 2, borderRadius: 6 }}
+          />
+          <Text style={styles.brand}>reLoad</Text>
+        </View>
+
         <Pressable onPress={finish} hitSlop={12}>
           <Text style={styles.skip}>Skip</Text>
         </Pressable>
