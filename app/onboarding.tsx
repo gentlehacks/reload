@@ -101,7 +101,7 @@ export default function Onboarding() {
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
-            source={require("../assets/icon.png")}
+            source={require("../assets/images/icon.png")}
             style={{ width: 24, height: 24, marginRight: 2, borderRadius: 6 }}
           />
           <Text style={styles.brand}>reLoad</Text>
